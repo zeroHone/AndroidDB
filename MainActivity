@@ -1,0 +1,59 @@
+package tamidhco.company.test
+
+import android.content.Context
+import android.os.AsyncTask
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
+import java.sql.DriverManager
+
+class MainActivity : AppCompatActivity() {
+    lateinit var  txt :TextView
+    lateinit var  txterr :TextView
+    var buffer :String ="Init"
+    var err :String  = "Init"
+    var isDone : Boolean = false
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+    txt = findViewById<TextView>(R.id.textView)
+        txterr  = findViewById<TextView>(R.id.textView2)
+val thRun = task()
+        findViewById<Button>(R.id.button).setOnClickListener(){
+            thRun.execute()
+
+        }
+
+    }
+
+inner    class task() : AsyncTask<Void,Void,Void>(){
+
+        override fun doInBackground(vararg p0: Void?): Void? {
+            try {
+
+                Class.forName("com.mysql.jdbc.Driver")
+                val conn = DriverManager.getConnection("jdbc:mysql://172.17.180.100/test_db","tamsidb_admin","1234!@#$")
+                val stm = conn.createStatement()
+                val rslt = stm.executeQuery("SELECT * FROM test_tbl")
+                while(rslt.next()){
+                    buffer = rslt.getString("name")
+                }
+            }
+            catch (ex :Exception){
+                err = ex.toString()
+
+            }
+            return null
+        }
+
+    override fun onPostExecute(result: Void?) {
+        txt.text = buffer
+        txterr.text = err
+
+        super.onPostExecute(result)
+    }
+    }
+}
+
